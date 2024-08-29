@@ -42,7 +42,10 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error?.message || errorData.message || 'Unknown error';
+        const errorCode = errorData.error?.code || errorData.code || 'UNKNOWN';
+        throw new Error(`API Error: ${response.status} - ${errorCode} - ${errorMessage}`);
       }
 
       const reader = response.body.getReader();
@@ -65,7 +68,11 @@ export default function Home() {
         });
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error:', error.message);
+      setMessages((messages) => [
+        ...messages,
+        { role: "assistant", content: `An error occurred: ${error.message}` },
+      ]);
     }
   };
 

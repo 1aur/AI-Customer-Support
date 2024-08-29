@@ -23,8 +23,10 @@ export async function POST(req) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text(); 
-      throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+      const errorData = await response.json();
+      const errorMessage = errorData.error?.message || errorData.message || 'Unknown error';
+      const errorCode = errorData.error?.code || errorData.code || 'UNKNOWN';
+      throw new Error(`API Error: ${response.status} - ${errorCode} - ${errorMessage}`);
     }
 
     const result = await response.json();
